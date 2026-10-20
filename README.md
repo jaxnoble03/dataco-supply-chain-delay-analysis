@@ -32,6 +32,12 @@ PostgreSQL, DBeaver
 - We can see that the data shows Pet Shop products are the most likely to experience delays being over 10% more likely than product categories.
 - Built a reusable view, `vw_delay_by_region_mode`, summarizing order count and average delay by region and shipping mode
 
+### Day 4 — Delay Segmentation & Performance Tuning
+- Bucketed orders into On Time / Late / Very Late using a CASE expression — On Time 42.72% / Late 49.51% / Very Late 7.77%
+- Used a subquery to identify product categories with above-average delay with the worst offenders being Golf Bags & Carts, Soccer, and Pet Supplies
+- Built a consolidated view, `vw_delay_summary`, combining region, customer segment, and department into one queryable summary
+- Added an index on `Order Region` and confirmed the performance improvement with `EXPLAIN ANALYZE` — 20.844ms before and 12.319ms after
+
 ## How to Reproduce
 1. Download the dataset from the Kaggle link above
 2. Load `DataCoSupplyChainDataset.csv` into a PostgreSQL database
