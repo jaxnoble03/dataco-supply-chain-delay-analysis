@@ -1,0 +1,39 @@
+select
+	case
+		when "Days for shipping (real)" - "Days for shipment (scheduled)" <= 0 then 'On Time'
+		when "Days for shipping (real)" - "Days for shipment (scheduled)" between 1 and 2 then 'Late'
+		else 'Very Late'
+	end as delay_bucket,
+	count(*) as order_count,
+	round(100*count(*) / sum(count(*)) over (), 2) as pct_of_orders
+	from fact_orders
+	group by delay_bucket
+	order by order_count desc;
+
+select
+	p."Category Name",
+	avg(f."Days for shipping (real)" - f."Days for shipment (scheduled)") as avg_delay
+from fact_orders f
+join dim_products p on f."Product Card Id" = p."Product Card Id"
+group by p."Category Name"
+having avg(f."Days for shipping (real)" - f."Days for shipment (scheduled)") > (
+	select avg("Days for shipping (real)" - "Days for shipment (scheduled)") from fact_orders
+	)
+order by avg_delay desc;
+
+create view vw_delayy_summary as 
+select
+	f."Order Region", c."Customer Segment", p."Department Name",
+	count(*) as order_count,
+	avg(f."Days for shipping (real)" - f."Days for shipment (scheduled)") as avg_delay
+from fact_orders f
+join dim_customers c on f."Order Customer Id" = c."Customer Id"
+join dim_products p on f."Product Card Id" = p."Product Card Id"
+group by f."Order Region", c."Customer Segment", p."Department Name";
+
+explain analyze
+select * from fact_orders where "Order Region" = 'South America';
+
+create index idx_fact_orders_region on fact_orders("Order Region");
+	
+	
