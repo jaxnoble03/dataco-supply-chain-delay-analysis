@@ -36,4 +36,5 @@ select * from fact_orders where "Order Region" = 'South America';
 
 create index idx_fact_orders_region on fact_orders("Order Region");
 	
-	
+explain analyze
+select * from fact_orders where "Order Region" = 'South America';
